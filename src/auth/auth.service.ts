@@ -34,7 +34,13 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const { password: _, ...result } = user.toObject(); // remove password from the returned object
+    if (!user.isVerified) {
+      throw new ForbiddenException(
+        'Please verify your email before logging in',
+      );
+    }
+
+    const { password: _, ...result } = user.toObject(); // remove password
     return result;
   }
 
@@ -66,10 +72,10 @@ export class AuthService {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.otp = otp;
-    user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+    user.otpExpires = new Date(Date.now() + Number(process.env.OTP_EXPIRES));
     await user.save();
 
-    await this.mailService.sendOtpEmail(email, otp); // ✅ send email
+    await this.mailService.sendOtpEmail(email, otp);
 
     return { message: 'OTP sent to your email' };
   }
@@ -89,8 +95,8 @@ export class AuthService {
       dto.newPassword,
       Number(process.env.SALT),
     );
-    user.otp = undefined;
-    user.otpExpires = undefined;
+    user.otp = null;
+    user.otpExpires = null;
     await user.save();
 
     return { message: 'Password has been reset' };

@@ -14,11 +14,20 @@ export class User {
   @Prop({ default: 'user', enum: ['user', 'admin'] })
   role: 'user' | 'admin';
 
-  @Prop()
-  otp?: string;
+  @Prop({ type: String, default: null })
+  otp: string | null;
 
-  @Prop()
-  otpExpires?: Date;
+  @Prop({ type: Date, default: null })
+  otpExpires: Date | null;
+
+  @Prop({ type: String, default: null })
+  emailToken: string | null;
+
+  @Prop({ type: Date, default: null })
+  emailTokenExpires: Date | null;
+
+  @Prop({ type: Boolean, default: false })
+  isVerified: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

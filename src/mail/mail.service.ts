@@ -33,4 +33,22 @@ export class MailService {
 
     await this.transporter.sendMail(mailOptions);
   }
+
+  async sendVerificationEmail(to: string, token: string) {
+    const verifyLink = `http://localhost:3000/users/verify-email?token=${token}`;
+
+    const mailOptions: nodemailer.SendMailOptions = {
+      from: `"Your App" <${this.configService.get<string>('MAIL_USER')}>`,
+      to,
+      subject: 'Verify Your Email',
+      html: `
+      <p>Thank you for registering!</p>
+      <p>Please verify your email by clicking the link below:</p>
+      <a href="${verifyLink}">${verifyLink}</a>
+      <p>This link will expire soon.</p>
+    `,
+    };
+
+    await this.transporter.sendMail(mailOptions);
+  }
 }

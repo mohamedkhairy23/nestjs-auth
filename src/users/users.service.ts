@@ -28,6 +28,10 @@ export class UsersService {
     return this.userModel.findOne({ email }).exec();
   }
 
+  async findByEmailToken(token: string) {
+    return this.userModel.findOne({ emailToken: token });
+  }
+
   async findById(id: string): Promise<UserDocument> {
     const user = await this.userModel.findById(id).exec();
     if (!user) throw new NotFoundException('User not found');
