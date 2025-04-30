@@ -46,7 +46,7 @@ export class MailService {
     const html = await this.renderTemplate('otp-email.ejs', { otp });
 
     const mailOptions: nodemailer.SendMailOptions = {
-      from: `"Your App" <${this.configService.get<string>('MAIL_USER')}>`,
+      from: `"NestJS AUTH" <${this.configService.get<string>('MAIL_USER')}>`,
       to,
       subject: 'Password Reset OTP',
       html,
@@ -62,7 +62,7 @@ export class MailService {
     });
 
     const mailOptions: nodemailer.SendMailOptions = {
-      from: `"Your App" <${this.configService.get<string>('MAIL_USER')}>`,
+      from: `"NestJS AUTH" <${this.configService.get<string>('MAIL_USER')}>`,
       to,
       subject: 'Verify Your Email',
       html,
