@@ -35,7 +35,7 @@ export class MailService {
   }
 
   async sendVerificationEmail(to: string, token: string) {
-    const verifyLink = `http://localhost:3000/users/verify-email?token=${token}`;
+    const verifyLink = `${process.env.CLIENT_URL}/users/verify-email?token=${token}`;
 
     const mailOptions: nodemailer.SendMailOptions = {
       from: `"Your App" <${this.configService.get<string>('MAIL_USER')}>`,
