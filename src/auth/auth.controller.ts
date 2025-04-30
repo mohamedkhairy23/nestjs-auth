@@ -17,6 +17,8 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 import { Roles } from './roles.decorator';
 import { RolesGuard } from './roles.guard';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { RequestResetDto } from './dto/request-reset.dto';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -49,5 +51,15 @@ export class AuthController {
   ) {
     const userId = req.user.userId;
     return this.authService.changeLoggedInPassword(userId, changePasswordDto);
+  }
+
+  @Patch('request-reset')
+  async requestReset(@Body() dto: RequestResetDto) {
+    return this.authService.requestPasswordReset(dto.email);
+  }
+
+  @Patch('reset-password')
+  async resetPassword(@Body() dto: VerifyOtpDto) {
+    return this.authService.verifyOtpAndResetPassword(dto);
   }
 }
