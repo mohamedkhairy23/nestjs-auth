@@ -24,7 +24,7 @@ export class UsersController {
     const hashed = await bcrypt.hash(dto.password, Number(process.env.SALT));
     const emailToken = crypto.randomBytes(32).toString('hex');
     const tokenExpires = new Date(
-      Date.now() + Number(process.env.EMAIL_TOKEN_EXPIRES),
+      Date.now() + Number(process.env.VERIFY_EMAIL_TOKEN_EXPIRES),
     );
 
     if (isNaN(tokenExpires.getTime())) {
