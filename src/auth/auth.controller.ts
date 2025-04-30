@@ -10,6 +10,8 @@ import {
   Request,
   Get,
   Patch,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from '../users/dto/login-user.dto';
@@ -25,6 +27,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   async login(@Body() dto: LoginUserDto) {
     const user = await this.authService.validateUser(dto.email, dto.password);
     return this.authService.login(user);
@@ -32,6 +35,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Post('profile')
+  @HttpCode(HttpStatus.OK)
   getProfile(@Request() req) {
     return req.user;
   }
@@ -39,12 +43,14 @@ export class AuthController {
   @Get('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
+  @HttpCode(HttpStatus.OK)
   getSecret() {
     return { message: 'Because you are admin, you can access this' };
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch('change-password')
+  @HttpCode(HttpStatus.OK)
   async changeMyPassword(
     @Request() req,
     @Body() changePasswordDto: ChangePasswordDto,
@@ -54,11 +60,13 @@ export class AuthController {
   }
 
   @Patch('request-reset')
+  @HttpCode(HttpStatus.ACCEPTED)
   async requestReset(@Body() dto: RequestResetDto) {
     return this.authService.requestPasswordReset(dto.email);
   }
 
   @Patch('reset-password')
+  @HttpCode(HttpStatus.OK)
   async resetPassword(@Body() dto: VerifyOtpDto) {
     return this.authService.verifyOtpAndResetPassword(dto);
   }

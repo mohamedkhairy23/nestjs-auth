@@ -5,6 +5,8 @@ import {
   Get,
   Query,
   BadRequestException,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
@@ -20,6 +22,7 @@ export class UsersController {
   ) {}
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   async register(@Body() dto: CreateUserDto) {
     const hashed = await bcrypt.hash(dto.password, Number(process.env.SALT));
     const emailToken = crypto.randomBytes(32).toString('hex');
@@ -45,6 +48,7 @@ export class UsersController {
   }
 
   @Get('verify-email')
+  @HttpCode(HttpStatus.OK)
   async verifyEmail(@Query('token') token: string) {
     const user = await this.usersService.findByEmailToken(token);
     if (!user) throw new BadRequestException('Invalid token');
