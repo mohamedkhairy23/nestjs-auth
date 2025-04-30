@@ -1,9 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
+import * as ejs from 'ejs';
+import { join } from 'path';
+import { readFile } from 'fs/promises';
 
 @Injectable()
 export class MailService {
@@ -22,13 +26,30 @@ export class MailService {
     });
   }
 
+  private async renderTemplate(
+    templateName: string,
+    data: Record<string, any>,
+  ): Promise<string> {
+    const templatePath = join(
+      process.cwd(),
+      'src',
+      'mail',
+      'templates',
+      templateName,
+    );
+
+    const template = await readFile(templatePath, 'utf-8');
+    return ejs.render(template, data);
+  }
+
   async sendOtpEmail(to: string, otp: string) {
+    const html = await this.renderTemplate('otp-email.ejs', { otp });
+
     const mailOptions: nodemailer.SendMailOptions = {
       from: `"Your App" <${this.configService.get<string>('MAIL_USER')}>`,
       to,
       subject: 'Password Reset OTP',
-      text: `Your OTP code is: ${otp}. It expires in 10 minutes.`,
-      html: `<p>Your OTP code is: <b>${otp}</b>. It expires in 10 minutes.</p>`,
+      html,
     };
 
     await this.transporter.sendMail(mailOptions);
@@ -36,17 +57,15 @@ export class MailService {
 
   async sendVerificationEmail(to: string, token: string) {
     const verifyLink = `${process.env.CLIENT_URL}/users/verify-email?token=${token}`;
+    const html = await this.renderTemplate('verification-email.ejs', {
+      verifyLink,
+    });
 
     const mailOptions: nodemailer.SendMailOptions = {
       from: `"Your App" <${this.configService.get<string>('MAIL_USER')}>`,
       to,
       subject: 'Verify Your Email',
-      html: `
-      <p>Thank you for registering!</p>
-      <p>Please verify your email by clicking the link below:</p>
-      <a href="${verifyLink}">${verifyLink}</a>
-      <p>This link will expire soon.</p>
-    `,
+      html,
     };
 
     await this.transporter.sendMail(mailOptions);
